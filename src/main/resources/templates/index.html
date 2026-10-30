@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockSmart - Modern Inventory & Stock Management System</title>
+    
+    <!-- CSS & Fonts -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand-icon">
+                <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+            <div class="brand-text">Stock<span>Smart</span></div>
+        </div>
+
+        <nav class="sidebar-menu">
+            <div class="menu-category">Main Menu</div>
+            <a class="nav-item active" data-tab="dashboard">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="menu-category">Catalog & Inventory</div>
+            <a class="nav-item" data-tab="products">
+                <i class="fa-solid fa-box-open"></i>
+                <span>Products</span>
+            </a>
+            <a class="nav-item" data-tab="categories">
+                <i class="fa-solid fa-tags"></i>
+                <span>Categories</span>
+            </a>
+            <a class="nav-item" data-tab="inventory">
+                <i class="fa-solid fa-cubes"></i>
+                <span>Inventory Stock</span>
+            </a>
+            <a class="nav-item" data-tab="locations">
+                <i class="fa-solid fa-warehouse"></i>
+                <span>Warehouses</span>
+            </a>
+
+            <div class="menu-category">Orders & Logistics</div>
+            <a class="nav-item" data-tab="suppliers">
+                <i class="fa-solid fa-truck"></i>
+                <span>Suppliers</span>
+            </a>
+            <a class="nav-item" data-tab="purchase-orders">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <span>Purchase Orders</span>
+            </a>
+            <a class="nav-item" data-tab="sales-orders">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Sales Orders</span>
+            </a>
+            <a class="nav-item" data-tab="stock-transfers">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                <span>Stock Transfers</span>
+            </a>
+
+            <div class="menu-category">Monitoring & Admin</div>
+            <a class="nav-item" data-tab="stock-alerts">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Stock Alerts</span>
+                <span class="badge-count" id="alertNavBadge" style="display:none;">0</span>
+            </a>
+            <a class="nav-item" data-tab="users">
+                <i class="fa-solid fa-users"></i>
+                <span>User Accounts</span>
+            </a>
+
+            <div style="margin-top: auto; padding-top: 20px;">
+                <button class="btn btn-secondary" style="width: 100%; justify-content: center;" onclick="seedDemoData()">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Seed Demo Data
+                </button>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearchInput" placeholder="Search catalog, suppliers, items...">
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <button class="btn btn-primary btn-sm" onclick="openAddProductModal()">
+                    <i class="fa-solid fa-plus"></i> Add Product
+                </button>
+
+                <button class="icon-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+
+                <button class="icon-btn" onclick="switchTab('stock-alerts')" title="View Alerts">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge-dot"></span>
+                </button>
+
+                <div class="user-profile">
+                    <div class="avatar">AD</div>
+                    <div class="user-info">
+                        <span class="user-name">Admin User</span>
+                        <span class="user-role">Inventory Manager</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="content-area">
+
+            <!-- 1. DASHBOARD VIEW -->
+            <section id="view-dashboard">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Executive Dashboard</h1>
+                        <p class="page-subtitle">Real-time overview of catalog, stock levels, orders, and system alerts.</p>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <p>Total Products</p>
+                            <h2 id="productCount">0</h2>
+                        </div>
+                        <div class="stat-icon blue"><i class="fa-solid fa-box"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <p>Inventory Items</p>
+                            <h2 id="inventoryCount">0</h2>
+                        </div>
+                        <div class="stat-icon emerald"><i class="fa-solid fa-cubes"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <p>Purchase Orders</p>
+                            <h2 id="purchaseCount">0</h2>
+                        </div>
+                        <div class="stat-icon amber"><i class="fa-solid fa-file-invoice"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <p>Sales Orders</p>
+                            <h2 id="salesCount">0</h2>
+                        </div>
+                        <div class="stat-icon purple"><i class="fa-solid fa-cart-shopping"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <p>Stock Alerts</p>
+                            <h2 id="alertCount">0</h2>
+                        </div>
+                        <div class="stat-icon rose"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Charts Grid -->
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fa-solid fa-chart-column" style="color:var(--primary); margin-right:8px;"></i> Product Stock Levels</h3>
+                        </div>
+                        <div style="height: 280px; position: relative;">
+                            <canvas id="stockChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color:var(--warning); margin-right:8px;"></i> Orders Overview</h3>
+                        </div>
+                        <div style="height: 280px; position: relative;">
+                            <canvas id="orderChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Alerts Widget -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fa-solid fa-bell" style="color:var(--danger); margin-right:8px;"></i> Active Stock Alerts</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="switchTab('stock-alerts')">View All Alerts</button>
+                    </div>
+                    <div id="recentAlertsWidget">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. PRODUCTS VIEW -->
+            <section id="view-products" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Products Management</h1>
+                        <p class="page-subtitle">View and manage item catalog, SKUs, and pricing.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddProductModal()">
+                        <i class="fa-solid fa-plus"></i> Add Product
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Product Name</th>
+                                    <th>Symbol / SKU</th>
+                                    <th>Price ($)</th>
+                                    <th>Stock Quantity</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. CATEGORIES VIEW -->
+            <section id="view-categories" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Categories</h1>
+                        <p class="page-subtitle">Organize product categories and departments.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddCategoryModal()">
+                        <i class="fa-solid fa-plus"></i> Add Category
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Category Name</th>
+                                    <th>Description</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. SUPPLIERS VIEW -->
+            <section id="view-suppliers" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Suppliers</h1>
+                        <p class="page-subtitle">Manage vendors and procurement contacts.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddSupplierModal()">
+                        <i class="fa-solid fa-plus"></i> Add Supplier
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Supplier Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Contact Person</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="suppliersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. LOCATIONS VIEW -->
+            <section id="view-locations" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Warehouses & Locations</h1>
+                        <p class="page-subtitle">Track physical storage locations and fulfillment centers.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddLocationModal()">
+                        <i class="fa-solid fa-plus"></i> Add Warehouse Location
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Warehouse Name</th>
+                                    <th>Address</th>
+                                    <th>City</th>
+                                    <th>State & ZIP</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="locationsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. INVENTORY VIEW -->
+            <section id="view-inventory" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Inventory Stock</h1>
+                        <p class="page-subtitle">Location-wise product stock distribution and reorder thresholds.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddInventoryModal()">
+                        <i class="fa-solid fa-plus"></i> Add Inventory Record
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Product</th>
+                                    <th>Warehouse Location</th>
+                                    <th>Quantity</th>
+                                    <th>Min Stock Threshold</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. PURCHASE ORDERS VIEW -->
+            <section id="view-purchase-orders" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Purchase Orders</h1>
+                        <p class="page-subtitle">Inbound stock orders from suppliers and manufacturers.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddPurchaseOrderModal()">
+                        <i class="fa-solid fa-plus"></i> Create Purchase Order
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>PO #</th>
+                                    <th>Supplier</th>
+                                    <th>Product</th>
+                                    <th>Destination Location</th>
+                                    <th>Qty</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchaseOrdersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. SALES ORDERS VIEW -->
+            <section id="view-sales-orders" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Sales Orders</h1>
+                        <p class="page-subtitle">Customer orders and outbound sales transactions.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddSalesOrderModal()">
+                        <i class="fa-solid fa-plus"></i> Create Sales Order
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>SO #</th>
+                                    <th>Customer / User</th>
+                                    <th>Product</th>
+                                    <th>Fulfillment Location</th>
+                                    <th>Qty</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesOrdersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. STOCK TRANSFERS VIEW -->
+            <section id="view-stock-transfers" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Stock Transfers</h1>
+                        <p class="page-subtitle">Inter-warehouse inventory movements and logistics.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddStockTransferModal()">
+                        <i class="fa-solid fa-plus"></i> New Stock Transfer
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ST #</th>
+                                    <th>Product</th>
+                                    <th>From Warehouse</th>
+                                    <th>To Warehouse</th>
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockTransfersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. STOCK ALERTS VIEW -->
+            <section id="view-stock-alerts" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Stock Alerts</h1>
+                        <p class="page-subtitle">Low stock warnings and critical inventory alerts.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddStockAlertModal()">
+                        <i class="fa-solid fa-plus"></i> Add Alert Threshold
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Alert ID</th>
+                                    <th>Product</th>
+                                    <th>Location</th>
+                                    <th>Current Stock</th>
+                                    <th>Min Threshold</th>
+                                    <th>Alert Type</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockAlertsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 11. USERS VIEW -->
+            <section id="view-users" class="hidden">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">User Accounts</h1>
+                        <p class="page-subtitle">Manage system users and access credentials.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddUserModal()">
+                        <i class="fa-solid fa-plus"></i> Register User
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Full Name</th>
+                                    <th>Email Address</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Reusable Modal Container -->
+    <div class="modal-backdrop" id="modalBackdrop">
+        <div class="modal-container">
+            <form id="modalForm">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="modalTitle">Modal Title</h3>
+                    <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Dynamic Form Controls -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Main JavaScript App Entry -->
+    <script src="/js/app.js"></script>
+</body>
+</html>
