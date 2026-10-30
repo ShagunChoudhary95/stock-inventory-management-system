@@ -442,3 +442,4 @@ spring.h2.console.enabled=true
 ## 📄 License
 
 This project is licensed under the **MIT License** — feel free to use and adapt it for academic, personal, or commercial purposes.
+
